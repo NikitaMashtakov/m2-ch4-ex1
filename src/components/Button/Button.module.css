@@ -1,0 +1,17 @@
+.submitButton {
+  display: block;
+  margin: auto;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1.5px solid #f5faff;
+  background: #f5faff;
+  &:hover {
+    border: 1.5px solid #2d76f9;
+  }
+  &:disabled {
+    background: #9aa8ba;
+  }
+  &:active {
+    background: #dddddd;
+  }
+}

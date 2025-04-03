@@ -1,3 +1,26 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+.inputLabel {
+  font-size: 0.8rem;
+  padding: 0 5px;
+  color: #fff;
+}
+.input {
+  border-radius: 5px;
+  width: 100%;
+  border: 1.5px solid #9aa8ba;
+  font-size: 1rem;
+  outline: none;
+  padding: 5px;
+  background: transparent;
+  &:focus {
+    border: 1.5px solid #2d76f9;
+  }
+}
 .error {
   color: red;
+  font-size: 0.7rem;
+  padding: 0 5px;
 }

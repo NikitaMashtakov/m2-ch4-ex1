@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Input } from '../Input/Input';
 import { Button } from '../Button/Button';
 import styles from './RegisterForm.module.css';
@@ -7,31 +7,47 @@ export const RegisterForm = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    repeatPassword: '',
   });
   const [formErrors, setFormErrors] = useState({
     emailError: null,
     passwordError: null,
     repeatPasswordError: null,
   });
-  const [repeatPassword, setRepeatPassword] = useState('');
+  const [submitBtnDisabled, setSubmitBtnDisabled] = useState(true);
+  const submitButtonRef = useRef(null);
+
+  useEffect(() => {
+    const canSubmit =
+      Object.values(formErrors).some((value) => value !== null) ||
+      Object.values(formData).some((value) => value === '');
+    if (canSubmit) {
+      setSubmitBtnDisabled(true);
+    } else {
+      setSubmitBtnDisabled(false);
+    }
+  }, [formData, formErrors]);
 
   const onEmailChange = ({ target }) => {
     setFormData((prev) => ({ ...prev, email: target.value }));
   };
+
   const onEmailBlur = ({ target }) => {
     let newError = null;
 
     if (target.value.length < 1) {
       newError = 'Адрес не должен быть пустым.';
-    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(target.value)) {
+    } else if (!/^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/.test(target.value)) {
       newError =
         'Неверный адрес почты. Адрес должен соответствовать виду example@example.com';
     }
     setFormErrors((prev) => ({ ...prev, emailError: newError }));
   };
+
   const onPasswordChange = ({ target }) => {
     setFormData((prev) => ({ ...prev, password: target.value }));
   };
+
   const onPasswordBlur = ({ target }) => {
     let newError = null;
 
@@ -40,10 +56,14 @@ export const RegisterForm = () => {
     }
     setFormErrors((prev) => ({ ...prev, passwordError: newError }));
   };
+
   const onRepeatPasswordChange = ({ target }) => {
-    setRepeatPassword(target.value);
+    setFormData((prev) => ({ ...prev, repeatPassword: target.value }));
     if (formData.password === target.value) {
       setFormErrors((prev) => ({ ...prev, repeatPasswordError: null }));
+      if (formErrors.emailError === null) {
+        submitButtonRef.current.focus();
+      }
     }
   };
 
@@ -56,11 +76,13 @@ export const RegisterForm = () => {
   };
 
   const submitForm = () => {
-    console.log(formData);
+    const { email, password } = formData;
+    console.log(email, password);
   };
+
   return (
-    <>
-      <form action={submitForm}>
+    <div className={styles.container}>
+      <form className={styles.registerForm} action={submitForm}>
         <Input
           type="email"
           name="email"
@@ -86,18 +108,15 @@ export const RegisterForm = () => {
           name="repeatPassword"
           placeholder="Повторите пароль"
           label="Пароль"
-          value={repeatPassword}
+          value={formData.repeatPassword}
           onChange={onRepeatPasswordChange}
           onBlur={onRepeatPasswordBlur}
           error={formErrors.repeatPasswordError}
         />
-        <Button
-          type="submit"
-          disabled={!Object.keys(formErrors).some((value) => value !== null)}
-        >
+        <Button ref={submitButtonRef} type="submit" disabled={submitBtnDisabled}>
           Зарегистрироваться
         </Button>
       </form>
-    </>
+    </div>
   );
 };
