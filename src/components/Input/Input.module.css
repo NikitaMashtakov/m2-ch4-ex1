@@ -20,7 +20,7 @@
   }
 }
 .error {
-  color: red;
+  color: rgb(255, 49, 49);
   font-size: 0.7rem;
   padding: 0 5px;
 }

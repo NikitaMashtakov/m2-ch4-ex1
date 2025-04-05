@@ -4,11 +4,26 @@ import styles from './RegisterForm.module.css';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useEffect, useRef } from 'react';
 
 const schema = yup
   .object({
-    email: yup.string().email().required('Введите e-mail'),
-    password: yup.string().min(8).required('Введите пароль'),
+    email: yup
+      .string()
+      .email('Адрес должен соответствовать виду example@example.com')
+      .matches(
+        /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/,
+        'Адрес должен соответствовать виду example@example.com',
+      )
+      .required('Введите e-mail'),
+    password: yup
+      .string()
+      .min(6, 'Минимальная длина пароля 6 символов')
+      .required('Введите пароль'),
+    repeatPassword: yup
+      .string()
+      .oneOf([yup.ref('password'), null], 'Пароли не совпадают')
+      .required('Повторите пароль'),
   })
   .required();
 
@@ -16,8 +31,7 @@ export const RegisterForm = () => {
   const {
     control,
     handleSubmit,
-    trigger,
-    formState: { errors },
+    formState: { isValid, errors },
   } = useForm({
     defaultValues: {
       email: '',
@@ -26,9 +40,19 @@ export const RegisterForm = () => {
     },
     resolver: yupResolver(schema),
   });
+
+  const submitButtonRef = useRef(null);
+
   const submitForm = (data) => {
-    console.log(data);
+    const { email, password } = data;
+    console.log({ email, password });
   };
+
+  useEffect(() => {
+    if (isValid) {
+      submitButtonRef.current.focus();
+    }
+  }, [isValid]);
 
   return (
     <div className={styles.container}>
@@ -38,7 +62,7 @@ export const RegisterForm = () => {
           control={control}
           render={({ field }) => (
             <Input
-              type="email"
+              type="text"
               placeholder="example@example.com"
               label="E-mail"
               error={errors.email?.message}
@@ -68,19 +92,14 @@ export const RegisterForm = () => {
             <Input
               type="password"
               placeholder="Повторите пароль"
-              label="Пароль"
+              label="Повторите пароль"
               error={errors.repeatPassword?.message}
               {...field}
             />
           )}
         />
 
-        <Button
-          type="submit"
-          onClick={() => {
-            trigger();
-          }}
-        >
+        <Button ref={submitButtonRef} type="submit" disabled={!isValid}>
           Зарегистрироваться
         </Button>
       </form>
