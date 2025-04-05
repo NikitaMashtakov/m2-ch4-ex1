@@ -14,19 +14,18 @@ export const RegisterForm = () => {
     passwordError: null,
     repeatPasswordError: null,
   });
-  const [submitBtnDisabled, setSubmitBtnDisabled] = useState(true);
   const submitButtonRef = useRef(null);
 
+  const canSubmit =
+    Object.values(formErrors).every((value) => value === null) &&
+    Object.values(formData).every((value) => value !== '') &&
+    formData.password === formData.repeatPassword;
+
   useEffect(() => {
-    const canSubmit =
-      Object.values(formErrors).some((value) => value !== null) ||
-      Object.values(formData).some((value) => value === '');
     if (canSubmit) {
-      setSubmitBtnDisabled(true);
-    } else {
-      setSubmitBtnDisabled(false);
+      submitButtonRef.current.focus();
     }
-  }, [formData, formErrors]);
+  }, [canSubmit]);
 
   const onEmailChange = ({ target }) => {
     setFormData((prev) => ({ ...prev, email: target.value }));
@@ -61,9 +60,6 @@ export const RegisterForm = () => {
     setFormData((prev) => ({ ...prev, repeatPassword: target.value }));
     if (formData.password === target.value) {
       setFormErrors((prev) => ({ ...prev, repeatPasswordError: null }));
-      if (formErrors.emailError === null) {
-        submitButtonRef.current.focus();
-      }
     }
   };
 
@@ -77,7 +73,7 @@ export const RegisterForm = () => {
 
   const submitForm = () => {
     const { email, password } = formData;
-    console.log(email, password);
+    console.log({ email, password });
   };
 
   return (
@@ -113,7 +109,7 @@ export const RegisterForm = () => {
           onBlur={onRepeatPasswordBlur}
           error={formErrors.repeatPasswordError}
         />
-        <Button ref={submitButtonRef} type="submit" disabled={submitBtnDisabled}>
+        <Button ref={submitButtonRef} type="submit" disabled={!canSubmit}>
           Зарегистрироваться
         </Button>
       </form>
